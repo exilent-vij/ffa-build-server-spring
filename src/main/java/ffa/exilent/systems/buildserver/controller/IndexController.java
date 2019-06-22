@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class IndexController {
@@ -16,9 +15,9 @@ public class IndexController {
         return "index";
     }
 
-    @GetMapping("/ios/{club_name}/{version}")
-    public ResponseEntity<Resource> download(@PathVariable("club_name") String clubName ,@PathVariable("version") String version) {
-        Resource resource = new ClassPathResource("test.txt");
+    @GetMapping("/ios/manifest")
+    public ResponseEntity<Resource> downloadManifest() {
+        Resource resource = new ClassPathResource("builds/ios/manifest.plist");
 
         // Try to determine file's content type
         String contentType = null;
@@ -34,4 +33,41 @@ public class IndexController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
+    @GetMapping("/ios/ipa")
+    public ResponseEntity<Resource> downloadIPA() {
+        Resource resource = new ClassPathResource("builds/ios/syd.ipa");
+
+        // Try to determine file's content type
+        String contentType = null;
+
+
+        // Fallback to the default content type if type could not be determined
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+    @GetMapping("/android/apk")
+    public ResponseEntity<Resource> downloadApk() {
+        Resource resource = new ClassPathResource("builds/android/adl.apk");
+
+        // Try to determine file's content type
+        String contentType = null;
+
+
+        // Fallback to the default content type if type could not be determined
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+
 }
