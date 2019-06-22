@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  nginx-php-fpm:
+    container_name: ffa_build_server
+    image: ffa/build-server:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - $PWD/src/main:/src/main
+      - $PWD/pom.xml:/pom.xml
+      - $PWD/.m2:/root/.m2
+      - $PWD/target:/target
+      - $PWD/src/test:/src/test
+

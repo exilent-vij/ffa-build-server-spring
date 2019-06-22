@@ -1,0 +1,21 @@
+ahoyapi: v2
+usage: CLI utilities for FFA Build Server
+commands:
+  start-local:
+    usage: Start FFA Build Server
+    cmd: |
+      docker build . -t ffa/build-server:latest -f deployment/development/Dockerfile
+      docker-compose up -d
+
+  start:
+    usage: Start FFA Build Server Locally
+    cmd: |
+      cp .ffa/keystore.p12 src/main/resources/
+      docker-compose up -d
+
+  stop:
+    usage: Stop FFA Build Server
+    cmd: |
+      docker-compose down
+
+
