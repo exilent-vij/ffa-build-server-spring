@@ -6,7 +6,11 @@ commands:
     cmd: |
       docker build . -t ffa/build-server:latest -f deployment/development/Dockerfile
       docker-compose up -d
-
+  start-production:
+    usage: Start FFA Build Server
+    cmd: |
+      docker build . -t ffa/build-server:latest -f deployment/staging/Dockerfile
+      docker-compose up -d
   start:
     usage: Start FFA Build Server Locally
     cmd: |
