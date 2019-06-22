@@ -17,7 +17,6 @@ RUN mkdir /target
 COPY .mvn /.mvn
 COPY mvnw /mvnw
 COPY mvnw.cmd /mvnw.cmd
-COPY /Users/admin/.ffa/keystore.p12 src/main/resources/
 COPY src /src
 COPY entrypoint-production.sh /entrypoint.sh
 

@@ -26,3 +26,4 @@ target/
 /logs/
 /.m2/
 /postgres-data/
+src/main/resources/builds
