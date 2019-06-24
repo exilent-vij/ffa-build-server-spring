@@ -12,11 +12,6 @@ commands:
       docker build . -t ffa/build-server:latest -f deployment/staging/Dockerfile
       cp /Users/admin/.ffa/keystore.p12 src/main/resources
       docker-compose up -d
-  start:
-    usage: Start FFA Build Server Locally
-    cmd: |
-      cp .ffa/keystore.p12 src/main/resources/
-      docker-compose up -d
 
   stop:
     usage: Stop FFA Build Server

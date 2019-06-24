@@ -14,4 +14,5 @@ services:
       - $PWD/.m2:/root/.m2
       - $PWD/target:/target
       - $PWD/src/test:/src/test
+      - /Users/admin/ffa/builds:/src/main/resources/builds
 
