@@ -1,7 +1,8 @@
 package ffa.exilent.systems.buildserver.controller;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,45 +18,71 @@ public class IndexController {
     }
 
     @GetMapping("/ios/{version}/{club}/manifest")
-    public ResponseEntity<Resource> downloadManifest(@PathVariable("version") String version,@PathVariable("club") String club) {
-        Resource resource = new ClassPathResource("builds/"+version+"/"+club+"/ios/manifest.plist");
+    public ResponseEntity downloadManifest(@PathVariable("version") String version, @PathVariable("club") String club) {
+        String fileName = "/builds/" + version + "/" + club + "/ios/manifest.plist";
+        File file = new File(fileName);
+        FileInputStream fileInputStream = this.getFileContent(file);
+        byte fileContent[] = null;
+        try {
+            fileInputStream.read(fileContent);
+        } catch (IOException exception) {
 
-        // Try to determine file's content type
-        String contentType = null;
+        }
+        String contentType = "application/octet-stream";
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .body(fileContent);
+    }
 
+    @GetMapping("/ios/{version}/{club}/ipa")
+    public ResponseEntity downloadIPA(@PathVariable("version") String version, @PathVariable("club") String club) {
+        String fileName = "/builds/" + version + "/" + club + "/ios/"+club+".ipa";
+        File file = new File(fileName);
+        FileInputStream fileInputStream = this.getFileContent(file);
+        byte fileContent[] = null;
+        try {
+            fileInputStream.read(fileContent);
+        } catch (IOException exception) {
 
-        // Fallback to the default content type if type could not be determined
-        if (contentType == null) {
-            contentType = "application/octet-stream";
+        }
+        String contentType = "application/octet-stream";
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .body(fileContent);
+    }
+
+    @GetMapping("/android/{version}/{club}/apk")
+    public ResponseEntity downloadApk(@PathVariable("version") String version, @PathVariable("club") String club) {
+        String fileName = "/builds/" + version + "/" + club + "/android/app-" + club + "-release.apk";
+        File file = new File(fileName);
+        FileInputStream fileInputStream = this.getFileContent(file);
+        byte[] fileContent = new byte[(int) file.length()];
+        try {
+            fileInputStream.read(fileContent);
+        } catch (IOException exception) {
+
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
-    }
-    @GetMapping("/ios/{version}/{club}/ipa")
-    public ResponseEntity<Resource> downloadIPA(@PathVariable("version") String version,@PathVariable("club") String club) {
-        Resource resource = new ClassPathResource("builds/"+version+"/"+club+"/ios/"+club+".ipa");
-
-        // Try to determine file's content type
-        String contentType = "application/octet-stream";
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
-    }
-    @GetMapping("/android/{version}/{club}/apk")
-    public ResponseEntity<Resource> downloadApk(@PathVariable("version") String version,@PathVariable("club") String club) {
-        Resource resource = new ClassPathResource("builds/"+version+"/"+club+"/android/"+"app-"+club+"-release.apk");
-
-        // Try to determine file's content type
         String contentType = "application/octet-stream";
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .body(fileContent);
     }
 
+    private FileInputStream getFileContent(File file) {
+        FileInputStream fileInputStream = null;
+        byte fileContent[] = null;
+        try {
+            fileInputStream = new FileInputStream(file.getName());
+            fileContent = new byte[(int) file.length()];
+            fileInputStream.read(fileContent);
+            return fileInputStream;
+        } catch (IOException exception) {
+            return null;
+        }
+    }
 }
