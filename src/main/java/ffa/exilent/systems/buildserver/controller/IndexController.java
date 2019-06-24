@@ -56,13 +56,14 @@ public class IndexController {
     @GetMapping("/android/{version}/{club}/apk")
     public ResponseEntity downloadApk(@PathVariable("version") String version, @PathVariable("club") String club) {
         String fileName = "/builds/" + version + "/" + club + "/android/app-" + club + "-release.apk";
+        System.out.println("File Path is "+fileName);
         File file = new File(fileName);
         FileInputStream fileInputStream = this.getFileContent(file);
         byte[] fileContent = new byte[(int) file.length()];
         try {
             fileInputStream.read(fileContent);
         } catch (IOException exception) {
-
+            System.out.println("Error");
         }
 
         String contentType = "application/octet-stream";
@@ -77,7 +78,7 @@ public class IndexController {
         FileInputStream fileInputStream = null;
         byte fileContent[] = null;
         try {
-            fileInputStream = new FileInputStream(file.getName());
+            fileInputStream = new FileInputStream(file);
             fileContent = new byte[(int) file.length()];
             fileInputStream.read(fileContent);
             return fileInputStream;
