@@ -47,7 +47,7 @@ public class IndexController {
     }
     @GetMapping("/android/{version}/{club}/apk")
     public ResponseEntity<Resource> downloadApk(@PathVariable("version") String version,@PathVariable("club") String club) {
-        Resource resource = new ClassPathResource("builds/android/"+version+"/"+club+"/"+"app-"+club+"-release.apk");
+        Resource resource = new ClassPathResource("builds/"+version+"/"+club+"/android/"+"app-"+club+"-release.apk");
 
         // Try to determine file's content type
         String contentType = "application/octet-stream";
