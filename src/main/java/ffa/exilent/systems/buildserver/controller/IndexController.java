@@ -39,14 +39,7 @@ public class IndexController {
         Resource resource = new ClassPathResource("builds/"+version+"/"+club+"/ios/"+club+".ipa");
 
         // Try to determine file's content type
-        String contentType = null;
-
-
-        // Fallback to the default content type if type could not be determined
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
-
+        String contentType = "application/octet-stream";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
@@ -54,16 +47,10 @@ public class IndexController {
     }
     @GetMapping("/android/{version}/{club}/apk")
     public ResponseEntity<Resource> downloadApk(@PathVariable("version") String version,@PathVariable("club") String club) {
-        Resource resource = new ClassPathResource("builds/android/"+version+"/"+club+"/"+club+"app-"+club+"-release.apk");
+        Resource resource = new ClassPathResource("builds/android/"+version+"/"+club+"/"+"app-"+club+"-release.apk");
 
         // Try to determine file's content type
-        String contentType = null;
-
-
-        // Fallback to the default content type if type could not be determined
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
+        String contentType = "application/octet-stream";
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
