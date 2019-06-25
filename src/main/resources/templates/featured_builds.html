@@ -40,7 +40,7 @@
                                 th:href="@{'itms-services://?action=download-manifest&url=https://ds138.macincloud.com/ios/'+${build.versionNumber}+'/'+${club}+'/manifest'}">IOS</a>
                         </div>
                         <div class="download_android"><a
-                                th:href="@{'https://ds138.macincloud.com/android/apk'}">Android</a></div>
+                                th:href="@{'https://ds138.macincloud.com/android/'+${build.versionNumber}+'/'+${club}+'/apk'}">Android</a></div>
                     </div>
                 </div>
             </div>
