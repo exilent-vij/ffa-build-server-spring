@@ -1,0 +1,91 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="../static/css/builds.css" th:href="@{/css/builds.css}" rel="stylesheet"/>
+    <link href="../static/css/tabs.css" th:href="@{/css/tabs.css}" rel="stylesheet"/>
+
+    <meta name="MobileOptimized" content="width"/>
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+
+<body>
+
+<div class="page_wrapper">
+
+    <div class="tabs_wrapper">
+        <a class="tabs active" th:href="@{'/featured-bills'}">Feature Builds</a>
+        <a class="tabs" th:href="@{'/staging-bills'}">Staging Builds</a>
+        <a class="tabs" href="#">Club Builds</a>
+    </div>
+
+    <div class="builds_wrapper">
+
+        <!-- BUILD STARTS -->
+        <div class="build" th:each="build: ${builds}">
+
+            <div class="build_header">
+                <div class="version" th:text="${build.versionNumber}"></div>
+                <div class="branch" th:text="${build.branch}"></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="build_downloads">
+                <div th:each="club:${build.getClubs()}">
+                    <div class="build_download" th:id="${club}">
+
+                        <div class="club_logo"></div>
+                        <div class="download_ios"><a
+                                th:href="@{'itms-services://?action=download-manifest&url=https://ds138.macincloud.com/ios/'+${build.versionNumber}+'/'+${club}+'/manifest'}">IOS</a>
+                        </div>
+                        <div class="download_android"><a
+                                th:href="@{'https://ds138.macincloud.com/android/apk'}">Android</a></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- BUILD ENDS -->
+
+
+        <!--    &lt;!&ndash; BUILD STARTS &ndash;&gt;-->
+        <!--    <div class="build">-->
+
+        <!--      <div class="build_header">-->
+        <!--        <div class="version">v3.0.15</div>-->
+        <!--        <div class="branch">FFA-389-react-native-webview-postmessage-reload</div>-->
+        <!--      </div>-->
+
+        <!--      <div class="divider"></div>-->
+
+        <!--      <div class="build_downloads">-->
+
+        <!--        <div class="build_download" id="bri">-->
+        <!--          <div class="club_logo"></div>-->
+        <!--          <div class="download_ios">ios</div>-->
+        <!--          <div class="download_android">android</div>-->
+        <!--        </div>-->
+
+        <!--        <div class="build_download" id="syd">-->
+        <!--          <div class="club_logo"></div>-->
+        <!--          <div class="download_ios">ios</div>-->
+        <!--          <div class="download_android">android</div>-->
+        <!--        </div>-->
+
+        <!--      </div>-->
+
+        <!--    </div>-->
+        <!-- BUILD ENDS -->
+    </div>
+
+    <div class="pagination_wrapper">
+        <a class="pagination disabled">Newer Builds</a>
+        <a class="pagination">Older Builds</a>
+    </div>
+
+</div>
+
+</body>
+
+</html>

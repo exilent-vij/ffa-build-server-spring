@@ -8,11 +8,12 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "5001:5001"
     volumes:
       - $PWD/src/main:/src/main
       - $PWD/pom.xml:/pom.xml
       - $PWD/.m2:/root/.m2
       - $PWD/target:/target
       - $PWD/src/test:/src/test
-      - /Users/admin/.ffa/builds:/builds
+      - /home/paras/.ffa/builds:/builds
 

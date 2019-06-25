@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css?family=Cutive+Mono&display=swap');
+
+html, body, * {
+  margin: 0px;
+  padding: 0px;
+  font-family: 'Cutive Mono', monospace;
+  font-size: 12px;
+}
+
+body {
+  background: #EEEEEE;
+}
+
+.page_wrapper{
+  padding: 10px;
+  width: 100%;
+  max-width: 680px;
+  box-sizing: border-box;
+  margin: 0px auto;
+}
+
+.builds_wrapper{
+  background: #FFFFFF;
+}
+
+.build {
+  position: relative;
+  padding: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.build::before, .build::after {
+  content: "";
+  height: 20px;
+  width: 60px;
+  position: absolute;
+}
+
+.build::before {
+  top: 0px;
+  left: 0px;
+  border-top: 0.5px solid #CCC;
+  border-left: 0.5px solid #CCC;
+}
+
+.build::after {
+  bottom: 0px;
+  right: 0px;
+  border-right: 0.5px solid #CCC;
+  border-bottom: 0.5px solid #CCC;
+}
+
+.build_header{
+  display: flex;
+  justify-content: space-between;
+  color: #333;
+  padding-bottom: 5px;
+}
+
+.divider{
+  border-bottom: 0.5px dashed #EEE;
+  height: 1px;
+  width: 100px;
+  margin: 5px auto;
+}
+
+.version {
+  margin-right: 40px;
+}
+
+.branch {
+  word-break: break-all;
+}
+
+.build_download {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.build_download .club_logo {
+  width: 20px;
+  height: 20px;
+  align-self: flex-start;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: 3px;
+}
+
+
+.build_download#bri .club_logo {
+  background-image: url("/images/club_logos/bri.png");
+}
+
+.build_download#syd .club_logo {
+  background-image: url("/images/club_logos/syd.png");
+}
+.build_download#adl .club_logo {
+  background-image: url("/images/club_logos/adl.png");
+}
+.build_download#cbr .club_logo {
+  background-image: url("/images/club_logos/cbr.png");
+}
+.build_download#ccm .club_logo {
+  background-image: url("/images/club_logos/ccm.png");
+}
+.build_download#mcy .club_logo {
+  background-image: url("/images/club_logos/mcy.png");
+}
+.build_download#mvc .club_logo {
+  background-image: url("/images/club_logos/mvc.png");
+}
+.build_download#new .club_logo {
+  background-image: url("/images/club_logos/new.png");
+}
+.build_download#per .club_logo {
+  background-image: url("/images/club_logos/per.png");
+}
+.build_download#wel .club_logo {
+  background-image: url("/images/club_logos/wel.png");
+}
+.build_download#wsw .club_logo {
+  background-image: url("/images/club_logos/wsw.png");
+}
