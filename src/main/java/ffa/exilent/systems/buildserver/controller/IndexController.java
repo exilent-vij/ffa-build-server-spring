@@ -90,8 +90,8 @@ public class IndexController {
     }
 
     private FileInputStream getFileContent(File file) {
-        FileInputStream fileInputStream = null;
-        byte fileContent[] = null;
+        FileInputStream fileInputStream;
+        byte fileContent[];
         try {
             fileInputStream = new FileInputStream(file);
             fileContent = new byte[(int) file.length()];
