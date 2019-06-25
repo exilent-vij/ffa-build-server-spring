@@ -32,11 +32,6 @@ public class IndexController {
     private final String STAGING_BRANCH = "xi_staging";
     private final String MASTER_BRANCH = "xi_master";
 
-    @GetMapping("/")
-    public String hello() {
-        return "index";
-    }
-
     @GetMapping("/ios/{version}/{club}/manifest")
     public ResponseEntity downloadManifest(@PathVariable("version") String version, @PathVariable("club") String club) {
         String fileName = "/builds/" + version + "/" + club + "/ios/manifest.plist";
@@ -107,7 +102,7 @@ public class IndexController {
         }
     }
 
-    @PostMapping("/newversion")
+    @PostMapping("/newbuild")
     public ResponseEntity newVersionUpdated(@RequestBody FeaturedBuildsInfo newVersion) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -136,7 +131,7 @@ public class IndexController {
     }
 
 
-    @GetMapping("/featured-bills")
+    @GetMapping({"/featured-bills","/"})
     public ModelAndView getFeaturedBuilds() {
         ObjectMapper mapper = new ObjectMapper();
         FeaturedBuilds version;
