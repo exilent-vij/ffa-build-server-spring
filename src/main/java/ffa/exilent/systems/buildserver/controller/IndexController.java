@@ -5,8 +5,7 @@ import ffa.exilent.systems.buildserver.model.ClubVersionInfo;
 import ffa.exilent.systems.buildserver.model.ClubVersions;
 import ffa.exilent.systems.buildserver.model.FeaturedBuilds;
 import ffa.exilent.systems.buildserver.model.FeaturedBuildsInfo;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,6 +35,7 @@ public class IndexController {
 
     private final String STAGING_BRANCH = "xi_staging";
     private final String MASTER_BRANCH = "xi_master";
+    private final int maxJsonObjectsInFile = 4;
 
     @GetMapping("/ios/{version}/{club}/manifest")
     public ResponseEntity<Resource> downloadManifest(@PathVariable("version") String version, @PathVariable("club") String club, HttpServletResponse response) {
@@ -68,7 +68,7 @@ public class IndexController {
         String contentType = "application/octet-stream";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + club+".apk"+ "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + club + ".apk" + "\"")
                 .body(resource);
     }
 
@@ -90,13 +90,48 @@ public class IndexController {
             ObjectMapper mapper = new ObjectMapper();
             Map version;
             String buildJsonFile;
+            String fileNumber;
             if (newVersion.getBranch().equalsIgnoreCase(STAGING_BRANCH)) {
-                buildJsonFile = "builds/staging_builds.json";
-
+                try {
+                    File file = new File("builds/current_staging_build_file_number.txt");
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    fileNumber = br.readLine();
+                } catch (IOException exception) {
+                    fileNumber = "1";
+                    FileWriter fileWriter = new FileWriter("builds/current_staging_build_file_number.txt");
+                    fileWriter.write(fileNumber);
+                    fileWriter.close();
+                }
+                buildJsonFile = "builds/staging_builds_" + fileNumber + ".json";
+                try {
+                    mapper.readValue(new File(buildJsonFile), Map.class);
+                } catch (IOException exception) {
+                    FeaturedBuilds featuredBuilds = new FeaturedBuilds();
+                    featuredBuilds.setVersionInfo(new ArrayList<>());
+                    mapper.writeValue(new File(buildJsonFile), featuredBuilds);
+                }
+                buildJsonFile = "builds/staging_builds_" + fileNumber + ".json";
                 version = mapper.readValue(new File(buildJsonFile), Map.class);
             } else {
-                buildJsonFile = "builds/featured_builds.json";
+                try {
+                    File file = new File("builds/current_featured_build_file_number.txt");
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    fileNumber = br.readLine();
+                } catch (IOException exception) {
+                    fileNumber = "1";
+                    FileWriter fileWriter = new FileWriter("builds/current_featured_build_file_number.txt");
+                    fileWriter.write(fileNumber);
+                    fileWriter.close();
+                }
 
+                buildJsonFile = "builds/featured_builds_" + fileNumber + ".json";
+                try {
+                    mapper.readValue(new File(buildJsonFile), Map.class);
+                } catch (IOException exception) {
+                    FeaturedBuilds featuredBuilds = new FeaturedBuilds();
+                    featuredBuilds.setVersionInfo(new ArrayList<>());
+                    mapper.writeValue(new File(buildJsonFile), featuredBuilds);
+                }
                 version = mapper.readValue(new File(buildJsonFile), Map.class);
             }
             ArrayList<FeaturedBuildsInfo> featuredBuildsInfo = (ArrayList<FeaturedBuildsInfo>) version.get("versions");
@@ -105,6 +140,13 @@ public class IndexController {
             ZonedDateTime nowAsiaSingapore = ZonedDateTime.ofInstant(nowUtc, australia);
             newVersion.setCreatedAt(Date.from(nowAsiaSingapore.toInstant()));
             featuredBuildsInfo.add(newVersion);
+            if (featuredBuildsInfo.size() >= maxJsonObjectsInFile) {
+                if (newVersion.getBranch().equalsIgnoreCase(STAGING_BRANCH)) {
+                    this.createNewStagingBuildJson(fileNumber);
+                } else {
+                    this.createNewFeaturedBuildJson(fileNumber);
+                }
+            }
             mapper.writeValue(new File(buildJsonFile), version);
             this.addClubVersions(newVersion);
             return new ResponseEntity(HttpStatus.OK);
@@ -129,6 +171,7 @@ public class IndexController {
         return mav;
     }
 
+
     @GetMapping("/staging-bills")
     public ModelAndView getStagingBuilds() {
         ObjectMapper mapper = new ObjectMapper();
@@ -147,54 +190,104 @@ public class IndexController {
     private void addClubVersions(FeaturedBuildsInfo versionInfo) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            ClubVersions versions = mapper.readValue(new File("builds/clubs.json"), ClubVersions.class);
             for (String clubName : versionInfo.getClubs()) {
-                List<ClubVersionInfo> clubVersionInfos = this.getClubVersions(clubName, versions);
-
+                File file = new File("builds/" + clubName + "_build_file_number.txt");
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                String fileNumber = br.readLine();
+                ClubVersions versions;
+                try {
+                    versions = mapper.readValue(new File("builds/" + clubName + "_builds_" + fileNumber + ".json"), ClubVersions.class);
+                } catch (IOException exception) {
+                    versions = new ClubVersions();
+                    versions.setClubVersionInfos(new ArrayList<>());
+                }
+                List<ClubVersionInfo> clubVersionInfos = versions.getClubVersionInfos();
                 ClubVersionInfo clubVersionInfo = new ClubVersionInfo();
                 clubVersionInfo.setBranch(versionInfo.getBranch());
                 clubVersionInfo.setCreatedAt(versionInfo.getCreatedAt());
                 clubVersionInfo.setVersionNumber(versionInfo.getVersionNumber());
                 clubVersionInfos.add(clubVersionInfo);
+                mapper.writeValue(new File("builds/" + clubName + "_builds_" + fileNumber + ".json"), versions);
+                if (clubVersionInfos.size() >= maxJsonObjectsInFile) {
+                    this.createNewClubsBuildJson(clubName, fileNumber);
+                }
             }
-
-            mapper.writeValue(new File("builds/clubs.json"), versions);
         } catch (IOException exception) {
+
             System.out.println(exception.getMessage());
         }
     }
 
-    private List<ClubVersionInfo> getClubVersions(String clubName, ClubVersions versions) {
+//    private List<ClubVersionInfo> getClubVersions(String clubName, ClubVersions versions) {
+//
+//        List<ClubVersionInfo> versionInfos = null;
+//        if (clubName.equalsIgnoreCase("adl")) {
+//            versionInfos = versions.getAdlVersions();
+//        } else if (clubName.equalsIgnoreCase("bri")) {
+//            versionInfos = versions.getBriVersions();
+//        } else if (clubName.equalsIgnoreCase("mcy")) {
+//            versionInfos = versions.getMcyVersions();
+//        } else if (clubName.equalsIgnoreCase("ccm")) {
+//            versionInfos = versions.getCcmVersions();
+//        } else if (clubName.equalsIgnoreCase("mvc")) {
+//            versionInfos = versions.getMvcVersions();
+//        } else if (clubName.equalsIgnoreCase("new")) {
+//            versionInfos = versions.getNewVersions();
+//        } else if (clubName.equalsIgnoreCase("per")) {
+//            versionInfos = versions.getPerVersions();
+//        } else if (clubName.equalsIgnoreCase("syd")) {
+//            versionInfos = versions.getSydVersions();
+//        } else if (clubName.equalsIgnoreCase("wel")) {
+//            versionInfos = versions.getWelVersions();
+//        } else if (clubName.equalsIgnoreCase("wsw")) {
+//            versionInfos = versions.getWswVersions();
+//        } else if (clubName.equalsIgnoreCase("cbr")) {
+//            versionInfos = versions.getCbrVersions();
+//        } else {
+//            versionInfos = versions.getMvcVersions();
+//        }
+//        if (versionInfos == null) {
+//            versionInfos = new ArrayList<>();
+//        }
+//        return versionInfos;
+//    }
 
-        List<ClubVersionInfo> versionInfos = null;
-        if (clubName.equalsIgnoreCase("adl")) {
-            versionInfos = versions.getAdlVersions();
-        } else if (clubName.equalsIgnoreCase("bri")) {
-            versionInfos = versions.getBriVersions();
-        } else if (clubName.equalsIgnoreCase("mcy")) {
-            versionInfos = versions.getMcyVersions();
-        } else if (clubName.equalsIgnoreCase("ccm")) {
-            versionInfos = versions.getCcmVersions();
-        } else if (clubName.equalsIgnoreCase("mvc")) {
-            versionInfos = versions.getMvcVersions();
-        } else if (clubName.equalsIgnoreCase("new")) {
-            versionInfos = versions.getNewVersions();
-        } else if (clubName.equalsIgnoreCase("per")) {
-            versionInfos = versions.getPerVersions();
-        } else if (clubName.equalsIgnoreCase("syd")) {
-            versionInfos = versions.getSydVersions();
-        } else if (clubName.equalsIgnoreCase("wel")) {
-            versionInfos = versions.getWelVersions();
-        } else if (clubName.equalsIgnoreCase("wsw")) {
-            versionInfos = versions.getWswVersions();
-        } else if (clubName.equalsIgnoreCase("cbr")) {
-            versionInfos = versions.getCbrVersions();
-        } else {
-            versionInfos = versions.getMvcVersions();
+    private void createNewStagingBuildJson(String fileNumber) {
+        fileNumber = Integer.toString(Integer.parseInt(fileNumber) + 1);
+        FeaturedBuilds featuredBuilds = new FeaturedBuilds();
+        featuredBuilds.setVersionInfo(new ArrayList<>());
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(new File("builds/staging_builds_" + fileNumber + ".json"), featuredBuilds);
+        } catch (IOException exception) {
+
         }
-        if (versionInfos == null) {
-            versionInfos = new ArrayList<>();
+    }
+
+    private void createNewClubsBuildJson(String clubName, String fileNumber) {
+        fileNumber = Integer.toString(Integer.parseInt(fileNumber) + 1);
+        ClubVersions clubVersions = new ClubVersions();
+        clubVersions.setClubVersionInfos(new ArrayList<>());
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            FileWriter fw = new FileWriter("builds/" + clubName + "_build_file_number.txt", false);
+            fw.write(fileNumber);
+            fw.close();
+            mapper.writeValue(new File("builds/" + clubName + "_builds_" + fileNumber + ".json"), clubVersions);
+        } catch (IOException exception) {
+
         }
-        return versionInfos;
+    }
+
+    private void createNewFeaturedBuildJson(String fileNumber) {
+        fileNumber = Integer.toString(Integer.parseInt(fileNumber) + 1);
+        FeaturedBuilds featuredBuilds = new FeaturedBuilds();
+        featuredBuilds.setVersionInfo(new ArrayList<>());
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(new File("builds/featured_builds_" + fileNumber + ".json"), featuredBuilds);
+        } catch (IOException exception) {
+
+        }
     }
 }
