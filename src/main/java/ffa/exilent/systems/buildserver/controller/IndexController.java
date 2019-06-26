@@ -8,6 +8,7 @@ import ffa.exilent.systems.buildserver.model.FeaturedBuildsInfo;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLConnection;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -40,10 +41,12 @@ public class IndexController {
         byte[] fileContent = new byte[(int) file.length()];
         try {
             fileInputStream.read(fileContent);
+
         } catch (IOException exception) {
 
         }
-        String contentType = "application/octet-stream";
+
+        String contentType = URLConnection.guessContentTypeFromName(file.getName());
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
