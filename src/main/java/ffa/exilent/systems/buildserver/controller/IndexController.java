@@ -46,7 +46,7 @@ public class IndexController {
 
         }
 
-       String contentType = "application/xml";
+       String contentType = "application/x-plist";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
