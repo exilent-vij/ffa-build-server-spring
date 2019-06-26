@@ -37,7 +37,7 @@ public class IndexController {
         String fileName = "/builds/" + version + "/" + club + "/ios/manifest.plist";
         File file = new File(fileName);
         FileInputStream fileInputStream = this.getFileContent(file);
-        byte fileContent[] = null;
+        byte[] fileContent = new byte[(int) file.length()];
         try {
             fileInputStream.read(fileContent);
         } catch (IOException exception) {
@@ -55,7 +55,7 @@ public class IndexController {
         String fileName = "/builds/" + version + "/" + club + "/ios/" + club + ".ipa";
         File file = new File(fileName);
         FileInputStream fileInputStream = this.getFileContent(file);
-        byte fileContent[] = null;
+        byte[] fileContent = new byte[(int) file.length()];
         try {
             fileInputStream.read(fileContent);
         } catch (IOException exception) {
@@ -71,7 +71,6 @@ public class IndexController {
     @GetMapping("/android/{version}/{club}/apk")
     public ResponseEntity downloadApk(@PathVariable("version") String version, @PathVariable("club") String club) {
         String fileName = "/builds/" + version + "/" + club + "/android/app-" + club + "-release.apk";
-        System.out.println("File Path is " + fileName);
         File file = new File(fileName);
         FileInputStream fileInputStream = this.getFileContent(file);
         byte[] fileContent = new byte[(int) file.length()];
