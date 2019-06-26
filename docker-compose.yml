@@ -16,4 +16,5 @@ services:
       - $PWD/target:/target
       - $PWD/src/test:/src/test
       - ~/.ffa/builds:/src/main/resources/builds
+      - ~/.ffa/builds:/builds
 

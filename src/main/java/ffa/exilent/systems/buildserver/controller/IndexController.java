@@ -75,7 +75,7 @@ public class IndexController {
 
     @GetMapping("/android/{version}/{club}/apk")
     public ResponseEntity downloadApk(@PathVariable("version") String version, @PathVariable("club") String club) {
-        String fileName = "/builds/" + version + "/" + club + "/android/app-" + club + "-release.apk";
+        String fileName = "builds/" + version + "/" + club + "/android/app-" + club + "-release.apk";
         Resource resource = new ClassPathResource(fileName);
         // Try to determine file's content type
         String contentType = null;
@@ -117,6 +117,7 @@ public class IndexController {
                 version = mapper.readValue(new File(buildJsonFile), Map.class);
             } else {
                 buildJsonFile = "builds/featured_builds.json";
+
                 version = mapper.readValue(new File(buildJsonFile), Map.class);
             }
             ArrayList<FeaturedBuildsInfo> featuredBuildsInfo = (ArrayList<FeaturedBuildsInfo>) version.get("versions");
