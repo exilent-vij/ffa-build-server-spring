@@ -46,7 +46,7 @@ public class IndexController {
 
         }
 
-        String contentType = URLConnection.guessContentTypeFromName(file.getName());
+       String contentType = "application/xml";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
