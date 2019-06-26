@@ -191,9 +191,18 @@ public class IndexController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             for (String clubName : versionInfo.getClubs()) {
-                File file = new File("builds/" + clubName + "_build_file_number.txt");
-                BufferedReader br = new BufferedReader(new FileReader(file));
-                String fileNumber = br.readLine();
+                String fileNumber;
+                try {
+                    File file = new File("builds/" + clubName + "_build_file_number.txt");
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    fileNumber = br.readLine();
+                } catch (IOException exception) {
+                    fileNumber = "1";
+                    FileWriter fileWriter = new FileWriter("builds/" + clubName + "_build_file_number.txt");
+                    fileWriter.write(fileNumber);
+                    fileWriter.close();
+                }
+
                 ClubVersions versions;
                 try {
                     versions = mapper.readValue(new File("builds/" + clubName + "_builds_" + fileNumber + ".json"), ClubVersions.class);
