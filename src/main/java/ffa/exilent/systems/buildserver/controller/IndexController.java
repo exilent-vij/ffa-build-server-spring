@@ -6,8 +6,10 @@ import ffa.exilent.systems.buildserver.model.ClubVersions;
 import ffa.exilent.systems.buildserver.model.FeaturedBuilds;
 import ffa.exilent.systems.buildserver.model.FeaturedBuildsInfo;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -16,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,73 +38,50 @@ public class IndexController {
     private final String MASTER_BRANCH = "xi_master";
 
     @GetMapping("/ios/{version}/{club}/manifest")
-    public ResponseEntity<Resource> downloadManifest(@PathVariable("version") String version, @PathVariable("club") String club, HttpServletResponse response ) {
-        Resource resource = new ClassPathResource("builds/"+version+"/"+club+"/ios/manifest.plist");
-
-        // Try to determine file's content type
-        String contentType = null;
-
-
-        // Fallback to the default content type if type could not be determined
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
+    public ResponseEntity<Resource> downloadManifest(@PathVariable("version") String version, @PathVariable("club") String club, HttpServletResponse response) {
+        String fileName = "builds/" + version + "/" + club + "/ios/" + "manifest.plist";
+        ByteArrayResource resource = this.getFileResource(fileName);
+        String contentType = "application/xml";
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "manifest.plist" + "\"")
                 .body(resource);
     }
 
     @GetMapping("/ios/{version}/{club}/ipa")
     public ResponseEntity<Resource> downloadIPA(@PathVariable("version") String version, @PathVariable("club") String club) {
         String fileName = "builds/" + version + "/" + club + "/ios/" + club + ".ipa";
-        Resource resource = new ClassPathResource(fileName);
-        // Try to determine file's content type
-        String contentType = null;
-
-
-        // Fallback to the default content type if type could not be determined
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
-
+        ByteArrayResource resource = this.getFileResource(fileName);
+        String contentType = "application/octet-stream";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + club + ".ipa" + "\"")
                 .body(resource);
+//
     }
 
     @GetMapping("/android/{version}/{club}/apk")
     public ResponseEntity downloadApk(@PathVariable("version") String version, @PathVariable("club") String club) {
         String fileName = "builds/" + version + "/" + club + "/android/app-" + club + "-release.apk";
-        Resource resource = new ClassPathResource(fileName);
-        // Try to determine file's content type
-        String contentType = null;
-
-
-        // Fallback to the default content type if type could not be determined
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
-
+        Resource resource = this.getFileResource(fileName);
+        String contentType = "application/octet-stream";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
 
-    private FileInputStream getFileContent(File file) {
-        FileInputStream fileInputStream;
-        byte fileContent[];
+    private ByteArrayResource getFileResource(String fileName) {
+        File file = new File(fileName);
+        Path path = Paths.get(file.getAbsolutePath());
+        ByteArrayResource resource;
         try {
-            fileInputStream = new FileInputStream(file);
-            fileContent = new byte[(int) file.length()];
-            fileInputStream.read(fileContent);
-            return fileInputStream;
+            resource = new ByteArrayResource(Files.readAllBytes(path));
         } catch (IOException exception) {
             return null;
         }
+        return resource;
     }
 
     @PostMapping("/newbuild")
@@ -135,7 +114,7 @@ public class IndexController {
     }
 
 
-    @GetMapping({"/featured-bills","/"})
+    @GetMapping({"/featured-bills", "/"})
     public ModelAndView getFeaturedBuilds() {
         ObjectMapper mapper = new ObjectMapper();
         FeaturedBuilds version;
