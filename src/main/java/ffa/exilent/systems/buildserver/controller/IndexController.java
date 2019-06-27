@@ -12,10 +12,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -24,10 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -156,35 +150,87 @@ public class IndexController {
     }
 
 
-    @GetMapping({"/featured-bills", "/"})
-    public ModelAndView getFeaturedBuilds() {
+    @GetMapping({"/featured-builds", "/"})
+    public ModelAndView getFeaturedBuilds(@RequestParam("page_number") Optional<String> pageNumberOptional) {
+        String pageNumber;
         ObjectMapper mapper = new ObjectMapper();
         FeaturedBuilds version;
+        String totalPages = this.getPagination("builds/current_featured_build_file_number.txt");
+        if (!pageNumberOptional.isPresent()) {
+            pageNumber = "1";
+        } else {
+            pageNumber = pageNumberOptional.get();
+        }
         try {
-            version = mapper.readValue(new File("builds/featured_builds.json"), FeaturedBuilds.class);
+            version = mapper.readValue(new File("builds/featured_builds_" + pageNumber + ".json"), FeaturedBuilds.class);
         } catch (IOException exception) {
             version = new FeaturedBuilds();
         }
-
         ModelAndView mav = new ModelAndView("featured_builds");
         mav.addObject("builds", version.getVersionInfo());
+        mav.addObject("pages", totalPages);
+        mav.addObject("build","featured");
         return mav;
     }
 
 
-    @GetMapping("/staging-bills")
-    public ModelAndView getStagingBuilds() {
+    @GetMapping("/staging-builds")
+    public ModelAndView getStagingBuilds(@RequestParam("page_number") Optional<String> pageNumberOptional) {
+        String pageNumber;
         ObjectMapper mapper = new ObjectMapper();
         FeaturedBuilds version;
+        String totalPages = this.getPagination("builds/current_featured_build_file_number.txt");
+        if (!pageNumberOptional.isPresent()) {
+            pageNumber = "1";
+        } else {
+            pageNumber = pageNumberOptional.get();
+        }
         try {
-            version = mapper.readValue(new File("builds/staging_builds.json"), FeaturedBuilds.class);
+            version = mapper.readValue(new File("builds/staging_builds_" + pageNumber + ".json"), FeaturedBuilds.class);
         } catch (IOException exception) {
             version = new FeaturedBuilds();
         }
 
         ModelAndView mav = new ModelAndView("featured_builds");
         mav.addObject("builds", version.getVersionInfo());
+        mav.addObject("pages", totalPages);
+        mav.addObject("build","staging");
         return mav;
+    }
+
+    @GetMapping("/club-builds/{club}")
+    public ModelAndView getClubBuilds(@PathVariable("club") String club, @RequestParam("page_number") Optional<String> pageNumberOptional) {
+        String pageNumber;
+        ObjectMapper mapper = new ObjectMapper();
+        ClubVersions version;
+        String totalPages = this.getPagination("builds/" + club + "_build_file_number.txt");
+        if (!pageNumberOptional.isPresent()) {
+            pageNumber = "1";
+        } else {
+            pageNumber = pageNumberOptional.get();
+        }
+        try {
+            version = mapper.readValue(new File("builds/" + club + "_builds_" + pageNumber + ".json"), ClubVersions.class);
+        } catch (IOException exception) {
+            version = new ClubVersions();
+        }
+
+        ModelAndView mav = new ModelAndView("club_builds");
+        mav.addObject("builds", version.getClubVersionInfos());
+        mav.addObject("pages", totalPages);
+        return mav;
+    }
+
+    private String getPagination(String buildNumberFile) {
+        String totalPages;
+        try {
+            File file = new File(buildNumberFile);
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            totalPages = br.readLine();
+        } catch (IOException exception) {
+            totalPages = "1";
+        }
+        return totalPages;
     }
 
     private void addClubVersions(FeaturedBuildsInfo versionInfo) {
@@ -215,6 +261,7 @@ public class IndexController {
                 clubVersionInfo.setBranch(versionInfo.getBranch());
                 clubVersionInfo.setCreatedAt(versionInfo.getCreatedAt());
                 clubVersionInfo.setVersionNumber(versionInfo.getVersionNumber());
+                clubVersionInfo.setClub(clubName);
                 clubVersionInfos.add(clubVersionInfo);
                 mapper.writeValue(new File("builds/" + clubName + "_builds_" + fileNumber + ".json"), versions);
                 if (clubVersionInfos.size() >= maxJsonObjectsInFile) {
@@ -226,40 +273,6 @@ public class IndexController {
             System.out.println(exception.getMessage());
         }
     }
-
-//    private List<ClubVersionInfo> getClubVersions(String clubName, ClubVersions versions) {
-//
-//        List<ClubVersionInfo> versionInfos = null;
-//        if (clubName.equalsIgnoreCase("adl")) {
-//            versionInfos = versions.getAdlVersions();
-//        } else if (clubName.equalsIgnoreCase("bri")) {
-//            versionInfos = versions.getBriVersions();
-//        } else if (clubName.equalsIgnoreCase("mcy")) {
-//            versionInfos = versions.getMcyVersions();
-//        } else if (clubName.equalsIgnoreCase("ccm")) {
-//            versionInfos = versions.getCcmVersions();
-//        } else if (clubName.equalsIgnoreCase("mvc")) {
-//            versionInfos = versions.getMvcVersions();
-//        } else if (clubName.equalsIgnoreCase("new")) {
-//            versionInfos = versions.getNewVersions();
-//        } else if (clubName.equalsIgnoreCase("per")) {
-//            versionInfos = versions.getPerVersions();
-//        } else if (clubName.equalsIgnoreCase("syd")) {
-//            versionInfos = versions.getSydVersions();
-//        } else if (clubName.equalsIgnoreCase("wel")) {
-//            versionInfos = versions.getWelVersions();
-//        } else if (clubName.equalsIgnoreCase("wsw")) {
-//            versionInfos = versions.getWswVersions();
-//        } else if (clubName.equalsIgnoreCase("cbr")) {
-//            versionInfos = versions.getCbrVersions();
-//        } else {
-//            versionInfos = versions.getMvcVersions();
-//        }
-//        if (versionInfos == null) {
-//            versionInfos = new ArrayList<>();
-//        }
-//        return versionInfos;
-//    }
 
     private void createNewStagingBuildJson(String fileNumber) {
         fileNumber = Integer.toString(Integer.parseInt(fileNumber) + 1);

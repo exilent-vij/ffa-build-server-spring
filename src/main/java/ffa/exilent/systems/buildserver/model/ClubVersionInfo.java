@@ -12,4 +12,6 @@ public class ClubVersionInfo {
     private Date createdAt;
     @JsonProperty("branch")
     private String branch;
+    @JsonProperty("club")
+    private String club;
 }
