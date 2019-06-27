@@ -28,8 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class IndexController {
 
     private final String STAGING_BRANCH = "xi_staging";
-    private final String MASTER_BRANCH = "xi_master";
-    private final int maxJsonObjectsInFile = 4;
+    private final int maxJsonObjectsInFile = 10;
 
     @GetMapping("/ios/{version}/{club}/manifest")
     public ResponseEntity<Resource> downloadManifest(@PathVariable("version") String version, @PathVariable("club") String club, HttpServletResponse response) {
@@ -179,7 +178,7 @@ public class IndexController {
         String pageNumber;
         ObjectMapper mapper = new ObjectMapper();
         FeaturedBuilds version;
-        String totalPages = this.getPagination("builds/current_featured_build_file_number.txt");
+        String totalPages = this.getPagination("builds/current_staging_build_file_number.txt");
         if (!pageNumberOptional.isPresent()) {
             pageNumber = "1";
         } else {
