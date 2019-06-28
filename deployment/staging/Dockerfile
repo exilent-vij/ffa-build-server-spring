@@ -10,6 +10,7 @@ LABEL maintainer="vij@exilent.systems"
 
 # Add a volume pointing to /tmp
 VOLUME /src
+RUN export FFA_P12_EXPORT_PASSWORD
 
 RUN mkdir /target
 # Make port 8020 available to the world outside this container
