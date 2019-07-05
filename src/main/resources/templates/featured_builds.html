@@ -21,7 +21,8 @@
     <div class="builds_wrapper">
 
         <!-- BUILD STARTS -->
-        <div class="build" th:each="build: ${builds}">
+        <div class="build" th:each="i : ${#numbers.sequence(builds.size() -1, 0, -1)}"
+             th:with="build=${builds[i]}">
 
             <div class="build_header">
                 <div class="version" th:text="${build.versionNumber}"></div>
