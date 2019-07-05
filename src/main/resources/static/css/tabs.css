@@ -11,14 +11,15 @@
   text-decoration: none;
   border: 0.5px solid #CCC;
   border-bottom: 0px;
-  padding: 5px;
+  padding: 10px;
   display: flex;
-  font-size: 85%;
+  font-size: 120%;
   cursor: pointer;
 }
 
 .tabs:hover, .tabs.active {
-  background: #DDD;
+  background: #444;
+  color: #FFFFFF;
   text-decoration: none;
 }
 

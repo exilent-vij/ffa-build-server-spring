@@ -14,9 +14,8 @@
 <div class="page_wrapper">
 
     <div class="tabs_wrapper">
-        <a class="tabs active" th:href="@{'/featured-builds'}">Feature Builds</a>
-        <a class="tabs" th:href="@{'/staging-builds'}">Staging Builds</a>
-        <a class="tabs" th:href="@{'/club-builds/adl'}">Club Builds</a>
+        <a class="tabs active" th:href="@{'/featured-builds'}">feature builds</a>
+        <a class="tabs" th:href="@{'/staging-builds'}">staging builds</a>
     </div>
 
     <div class="builds_wrapper">
@@ -29,18 +28,16 @@
                 <div class="branch" th:text="${build.branch}"></div>
             </div>
 
-            <div class="divider"></div>
-
             <div class="build_downloads">
                 <div th:each="club:${build.getClubs()}">
                     <div class="build_download" th:id="${club}">
 
                         <div class="club_logo"></div>
                         <div class="download_ios"><a
-                                th:href="@{'itms-services://?action=download-manifest&url=https://ds138.macincloud.com/ios/'+${build.versionNumber}+'/'+${club}+'/manifest'}">IOS</a>
+                                th:href="@{'itms-services://?action=download-manifest&url=https://ds138.macincloud.com/ios/'+${build.versionNumber}+'/'+${club}+'/manifest'}">ios</a>
                         </div>
                         <div class="download_android"><a
-                                th:href="@{'https://ds138.macincloud.com/android/'+${build.versionNumber}+'/'+${club}+'/apk'}">Android</a>
+                                th:href="@{'https://ds138.macincloud.com/android/'+${build.versionNumber}+'/'+${club}+'/apk'}">android</a>
                         </div>
                     </div>
                 </div>
