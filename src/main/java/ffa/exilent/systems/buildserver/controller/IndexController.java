@@ -279,6 +279,9 @@ public class IndexController {
         featuredBuilds.setVersionInfo(new ArrayList<>());
         ObjectMapper mapper = new ObjectMapper();
         try {
+            FileWriter fileWriter = new FileWriter("builds/current_staging_build_file_number.txt");
+            fileWriter.write(fileNumber);
+            fileWriter.close();
             mapper.writeValue(new File("builds/staging_builds_" + fileNumber + ".json"), featuredBuilds);
         } catch (IOException exception) {
 
@@ -306,6 +309,9 @@ public class IndexController {
         featuredBuilds.setVersionInfo(new ArrayList<>());
         ObjectMapper mapper = new ObjectMapper();
         try {
+            FileWriter fw = new FileWriter("builds/current_featured_build_file_number.txt");
+            fw.write(fileNumber);
+            fw.close();
             mapper.writeValue(new File("builds/featured_builds_" + fileNumber + ".json"), featuredBuilds);
         } catch (IOException exception) {
 
