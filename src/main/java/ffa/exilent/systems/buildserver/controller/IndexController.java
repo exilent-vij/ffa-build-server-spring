@@ -164,11 +164,12 @@ public class IndexController {
             version = mapper.readValue(new File("builds/featured_builds_" + pageNumber + ".json"), FeaturedBuilds.class);
         } catch (IOException exception) {
             version = new FeaturedBuilds();
+            version.setVersionInfo(new ArrayList<>());
         }
         ModelAndView mav = new ModelAndView("featured_builds");
         mav.addObject("builds", version.getVersionInfo());
         mav.addObject("pages", totalPages);
-        mav.addObject("build","featured");
+        mav.addObject("build", "featured");
         return mav;
     }
 
@@ -188,12 +189,13 @@ public class IndexController {
             version = mapper.readValue(new File("builds/staging_builds_" + pageNumber + ".json"), FeaturedBuilds.class);
         } catch (IOException exception) {
             version = new FeaturedBuilds();
+            version.setVersionInfo(new ArrayList());
         }
 
         ModelAndView mav = new ModelAndView("featured_builds");
         mav.addObject("builds", version.getVersionInfo());
         mav.addObject("pages", totalPages);
-        mav.addObject("build","staging");
+        mav.addObject("build", "staging");
         return mav;
     }
 
