@@ -29,6 +29,9 @@ public class IndexController {
 
     private final String STAGING_BRANCH = "xi_staging";
     private final int maxJsonObjectsInFile = 10;
+    private final String stagingBuildType = "staging";
+    private final String featureBuildType = "feature";
+    private final String clubBuildType = "club";
 
     @GetMapping("/ios/{version}/{club}/manifest")
     public ResponseEntity<Resource> downloadManifest(@PathVariable("version") String version, @PathVariable("club") String club, HttpServletResponse response) {
@@ -150,21 +153,32 @@ public class IndexController {
 
 
     @GetMapping({"/featured-builds", "/"})
-    public ModelAndView getFeaturedBuilds(@RequestParam("page_number") Optional<String> pageNumberOptional) {
-        String pageNumber;
+    public ModelAndView getFeaturedBuilds(@RequestParam("page_number") Optional<Integer> pageNumberOptional) {
+        int pageNumber;
         ObjectMapper mapper = new ObjectMapper();
         FeaturedBuilds version;
-        String totalPages = this.getPagination("builds/current_featured_build_file_number.txt");
-        if (!pageNumberOptional.isPresent()) {
-            pageNumber = "1";
-        } else {
-            pageNumber = pageNumberOptional.get();
-        }
+        int totalPages = this.getTotalPages("builds/current_featured_build_file_number.txt", featureBuildType);
+        pageNumber = this.getPageNumber(totalPages, pageNumberOptional);
         try {
             version = mapper.readValue(new File("builds/featured_builds_" + pageNumber + ".json"), FeaturedBuilds.class);
         } catch (IOException exception) {
             version = new FeaturedBuilds();
             version.setVersionInfo(new ArrayList<>());
+        }
+        if (version.getVersionInfo().size() < maxJsonObjectsInFile) {
+            if (pageNumber > 1) {
+                FeaturedBuilds extraVersions;
+                pageNumber = pageNumber - 1;
+                try {
+                    extraVersions = mapper.readValue(new File("builds/featured_builds_" + pageNumber + ".json"), FeaturedBuilds.class);
+                } catch (IOException exception) {
+                    extraVersions = new FeaturedBuilds();
+                    extraVersions.setVersionInfo(new ArrayList<>());
+                }
+                for (FeaturedBuildsInfo featuredBuildsInfo : extraVersions.getVersionInfo()) {
+                    version.getVersionInfo().add(featuredBuildsInfo);
+                }
+            }
         }
         ModelAndView mav = new ModelAndView("featured_builds");
         mav.addObject("builds", version.getVersionInfo());
@@ -175,21 +189,32 @@ public class IndexController {
 
 
     @GetMapping("/staging-builds")
-    public ModelAndView getStagingBuilds(@RequestParam("page_number") Optional<String> pageNumberOptional) {
-        String pageNumber;
+    public ModelAndView getStagingBuilds(@RequestParam("page_number") Optional<Integer> pageNumberOptional) {
+        int pageNumber;
         ObjectMapper mapper = new ObjectMapper();
         FeaturedBuilds version;
-        String totalPages = this.getPagination("builds/current_staging_build_file_number.txt");
-        if (!pageNumberOptional.isPresent()) {
-            pageNumber = "1";
-        } else {
-            pageNumber = pageNumberOptional.get();
-        }
+        int totalPages = this.getTotalPages("builds/current_staging_build_file_number.txt", stagingBuildType);
+        pageNumber = this.getPageNumber(totalPages, pageNumberOptional);
         try {
             version = mapper.readValue(new File("builds/staging_builds_" + pageNumber + ".json"), FeaturedBuilds.class);
         } catch (IOException exception) {
             version = new FeaturedBuilds();
             version.setVersionInfo(new ArrayList());
+        }
+        if (version.getVersionInfo().size() < maxJsonObjectsInFile) {
+            if (pageNumber > 1) {
+                FeaturedBuilds extraVersions;
+                pageNumber = pageNumber - 1;
+                try {
+                    extraVersions = mapper.readValue(new File("builds/staging_builds_" + pageNumber + ".json"), FeaturedBuilds.class);
+                } catch (IOException exception) {
+                    extraVersions = new FeaturedBuilds();
+                    extraVersions.setVersionInfo(new ArrayList<>());
+                }
+                for (FeaturedBuildsInfo featuredBuildsInfo : extraVersions.getVersionInfo()) {
+                    version.getVersionInfo().add(featuredBuildsInfo);
+                }
+            }
         }
 
         ModelAndView mav = new ModelAndView("featured_builds");
@@ -200,29 +225,64 @@ public class IndexController {
     }
 
     @GetMapping("/club-builds/{club}")
-    public ModelAndView getClubBuilds(@PathVariable("club") String club, @RequestParam("page_number") Optional<String> pageNumberOptional) {
-        String pageNumber;
+    public ModelAndView getClubBuilds(@PathVariable("club") String club, @RequestParam("page_number") Optional<Integer> pageNumberOptional) {
+        int pageNumber;
         ObjectMapper mapper = new ObjectMapper();
         ClubVersions version;
-        String totalPages = this.getPagination("builds/" + club + "_build_file_number.txt");
-        if (!pageNumberOptional.isPresent()) {
-            pageNumber = "1";
-        } else {
-            pageNumber = pageNumberOptional.get();
-        }
+        int totalPages = this.getTotalPages("builds/" + club + "_build_file_number.txt", clubBuildType, club);
+        pageNumber = this.getPageNumber(totalPages, pageNumberOptional);
         try {
             version = mapper.readValue(new File("builds/" + club + "_builds_" + pageNumber + ".json"), ClubVersions.class);
         } catch (IOException exception) {
             version = new ClubVersions();
         }
 
+        if (version.getClubVersionInfos().size() < maxJsonObjectsInFile) {
+            if (pageNumber > 1) {
+                ClubVersions extraVersions;
+                pageNumber = pageNumber - 1;
+                try {
+                    extraVersions = mapper.readValue(new File("builds/" + club + "_builds_" + pageNumber + ".json"), ClubVersions.class);
+                } catch (IOException exception) {
+                    extraVersions = new ClubVersions();
+                    extraVersions.setClubVersionInfos(new ArrayList<>());
+                }
+                for (ClubVersionInfo clubVersionInfo : extraVersions.getClubVersionInfos()) {
+                    version.getClubVersionInfos().add(clubVersionInfo);
+                }
+            }
+        }
+
+
         ModelAndView mav = new ModelAndView("club_builds");
         mav.addObject("builds", version.getClubVersionInfos());
         mav.addObject("pages", totalPages);
+        mav.addObject("club", club);
         return mav;
     }
 
-    private String getPagination(String buildNumberFile) {
+    private FeaturedBuilds getLastPaginatedJsonObject(String filePath) {
+        FeaturedBuilds lastRecords;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            lastRecords = mapper.readValue(new File(filePath), FeaturedBuilds.class);
+        } catch (IOException exception) {
+            lastRecords = new FeaturedBuilds();
+        }
+        return lastRecords;
+    }
+
+    private int getPageNumber(int totalPages, Optional<Integer> pageNumberOptional) {
+        int pageNumber;
+        if (!pageNumberOptional.isPresent()) {
+            pageNumber = totalPages;
+        } else {
+            pageNumber = totalPages - pageNumberOptional.get() + 1;
+        }
+        return pageNumber;
+    }
+
+    private int getPagination(String buildNumberFile) {
         String totalPages;
         try {
             File file = new File(buildNumberFile);
@@ -231,8 +291,38 @@ public class IndexController {
         } catch (IOException exception) {
             totalPages = "1";
         }
+        return Integer.parseInt(totalPages);
+    }
+
+    private int getTotalPages(String filePath, String type) {
+        int totalPages = this.getPagination(filePath);
+        FeaturedBuilds lastRecords;
+        switch (type) {
+            case featureBuildType:
+                lastRecords = this.getLastPaginatedJsonObject("builds/featured_builds_" + totalPages + ".json");
+                break;
+            case stagingBuildType:
+                lastRecords = this.getLastPaginatedJsonObject("builds/staging_builds_" + totalPages + ".json");
+                break;
+            default:
+                lastRecords = this.getLastPaginatedJsonObject("builds/staging_builds_" + totalPages + ".json");
+        }
+
+        if (lastRecords.getVersionInfo().size() < maxJsonObjectsInFile && totalPages > 1) {
+            totalPages = totalPages - 1;
+        }
         return totalPages;
     }
+
+    private int getTotalPages(String filePath, String type, String club) {
+        int totalPages = this.getPagination(filePath);
+        FeaturedBuilds lastRecords = this.getLastPaginatedJsonObject("builds/" + club + "_builds_" + totalPages + ".json");
+        if (lastRecords.getVersionInfo().size() < maxJsonObjectsInFile && totalPages > 1) {
+            totalPages = totalPages - 1;
+        }
+        return totalPages;
+    }
+
 
     private void addClubVersions(FeaturedBuildsInfo versionInfo) {
         try {
