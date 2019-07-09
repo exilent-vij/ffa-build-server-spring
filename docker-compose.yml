@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  ffa_build_server:
+  nginx-php-fpm:
     container_name: ffa_build_server
     image: ffa/build-server:latest
     restart: always
