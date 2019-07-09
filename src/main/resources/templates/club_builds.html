@@ -32,7 +32,7 @@
             <div class="divider"></div>
 
             <div class="build_downloads">
-                <div >
+                <div>
                     <div class="build_download" th:id="${build.club}">
 
                         <div class="club_logo"></div>
@@ -40,7 +40,8 @@
                                 th:href="@{'itms-services://?action=download-manifest&url=https://ds138.macincloud.com/ios/'+${build.versionNumber}+'/'+${build.club}+'/manifest'}">IOS</a>
                         </div>
                         <div class="download_android"><a
-                                th:href="@{'https://ds138.macincloud.com/android/'+${build.versionNumber}+'/'+${build.club}+'/apk'}">Android</a></div>
+                                th:href="@{'https://ds138.macincloud.com/android/'+${build.versionNumber}+'/'+${build.club}+'/apk'}">Android</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -79,9 +80,10 @@
         <!-- BUILD ENDS -->
     </div>
 
-    <div class="pagination_wrapper">
-        <a class="pagination disabled">Newer Builds</a>
-        <a class="pagination">Older Builds</a>
+    <div class="pagination">
+        <th:block th:each="i: ${#numbers.sequence(1, pages )}">
+            <a th:href="@{'/staging-builds/'+${club}+'?page_number='+${i}}" th:text="${i}"></a>
+        </th:block>
     </div>
 
 </div>
