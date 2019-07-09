@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  nginx-php-fpm:
+  ffa_build_server:
     container_name: ffa_build_server
     image: ffa/build-server:latest
     restart: always
@@ -17,3 +17,5 @@ services:
       - $PWD/src/test:/src/test
       - ~/.ffa/builds:/builds
 
+    environment:
+      - keystore_password=${keystore_password}

@@ -6,6 +6,8 @@ COPY pom.xml /pom.xml
 RUN mvn dependency:go-offline
 
 RUN export FFA_P12_EXPORT_PASSWORD
+RUN export keystore_password
+
 # Add Maintainer Info
 LABEL maintainer="vij@exilent.systems"
 
