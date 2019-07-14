@@ -14,6 +14,8 @@ RUN export FFA_P12_EXPORT_PASSWORD
 
 RUN mkdir /target
 # Make port 8020 available to the world outside this container
+RUN export ffa_authentication_username
+RUN export ffa_authentication_password
 
 COPY .mvn /.mvn
 COPY mvnw /mvnw

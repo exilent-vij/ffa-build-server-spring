@@ -17,3 +17,7 @@ services:
       - $PWD/src/test:/src/test
       - ~/.ffa/builds:/builds
 
+    environment:
+      - keystore_password=${keystore_password}
+      - ffa_authentication_password=${ffa_authentication_password}
+      - ffa_authentication_username=${ffa_authentication_username}

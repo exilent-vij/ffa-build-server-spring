@@ -307,10 +307,15 @@ public class IndexController {
             default:
                 lastRecords = this.getLastPaginatedJsonObject("builds/staging_builds_" + totalPages + ".json");
         }
-
-        if (lastRecords.getVersionInfo().size() < maxJsonObjectsInFile && totalPages > 1) {
-            totalPages = totalPages - 1;
+        try{
+            if (lastRecords.getVersionInfo().size() < maxJsonObjectsInFile && totalPages > 1) {
+                totalPages = totalPages - 1;
+            }
         }
+        catch (Exception exception){
+            totalPages=1;
+        }
+
         return totalPages;
     }
 
