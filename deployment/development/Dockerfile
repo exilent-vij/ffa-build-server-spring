@@ -7,7 +7,8 @@ RUN mvn dependency:go-offline
 
 RUN export FFA_P12_EXPORT_PASSWORD
 RUN export keystore_password
-
+RUN export ffa_authentication_username
+RUN export ffa_authentication_password
 # Add Maintainer Info
 LABEL maintainer="vij@exilent.systems"
 
